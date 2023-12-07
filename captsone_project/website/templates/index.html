@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapView</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        body {
+     margin: 0;
+       padding: 0;
+       transition: margin-left 0.5s;
+       background-color: lightblue;
+
+     }
+ 
+     #map {
+             height: 1080px;
+             width: auto;
+             transition: margin-left 0.5s;
+             z-index: 2;
+ 
+         }
+ 
+         .map-open {
+       margin-left: 400px;
+     }
+ 
+ .additional-content {
+       padding: 20px;
+       position: absolute;
+       top: 20px;
+       left: 20px;
+       z-index: 1;
+     }
+ 
+     button {
+       padding: 10px;
+       cursor: pointer;
+       z-index: 3;
+     }
+
+ 
+         .modal {
+             display: none;
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background-color: rgba(0, 0, 0, 0.7);
+             z-index: 3;
+         }
+ 
+         .modal-content {
+             position: absolute;
+             top: 50%;
+             left: 50%;
+             transform: translate(-50%, -50%);
+             background-color: white;
+             padding: 20px;
+             max-width: 400px;
+             text-align: center;
+             z-index: 4;
+         }
+ 
+         #modal-image {
+             max-width: 100%;
+             max-height: 400px;
+         }
+ 
+         .minimize {
+             margin-top: 10px;
+             cursor: pointer;
+             color: blue;
+             text-decoration: underline;
+         }
+ 
+         .close {
+             position: absolute;
+             top: 0;
+             right: 0;
+             padding: 10px;
+             cursor: pointer;
+         }
+ 
+         .logout {
+             padding-top: 90%;
+         }
+ 
+
+     #hide{
+         display: none;
+     }
+ 
+     #hide1{
+         display: none;
+     }
+
+         #imageInput,
+         #descriptionInput,
+         #uploadButton {
+             margin: 10px;
+         }
+
+     </style>
+    <script src=" https://maps.googleapis.com/maps/api/js?key=AIzaSyCrTZ5ngLS7UbsbQXIDH6Kx3TtGMXl-SCw&callback=initMap
+    " async defer></script>
+</head>
+<body>
+        <button onclick="clearLocalStorage()">Clear Local Storage</button>
+        <button onclick="toggleSlide()">Menu</button>
+        <div class="container">
+            <div class="main-content" id="map">
+            </div>
+            <div class="additional-content" id="additionalContent">
+    
+    
+    
+                <button id="logoutButton">Logout</button>
+                <br>
+                <br>
+                <br>
+    
+                <button onclick="toggleText1()">Add Group</button>
+    
+                <div id="hide1">
+    
+                    <br>
+                    <br>
+                    <br>
+    
+                    <h3>Create Group</h3>
+                    <form action="{{ url_for('auth.create_group') }}" method="POST" id="createGroupForm">
+                        <input type="text" placeholder="Enter Group ID" name="post_groupid" /><br>
+                        <input type="text" placeholder="Enter Group Name" name="post_groupname" /><br>
+                        <input type="submit" value="Create Group" class="button" /><br>
+                    </form>
+    
+                    <br>
+    
+    
+    
+                    <h3>Join Group</h3>
+                    <form action="{{ url_for('auth.join_group') }}" method="POST">
+                        <input type="text" placeholder="Enter Group ID" name="post_groupid" /><br>
+                        <!-- Other form fields -->
+                        <input type="submit" value="Join Group" class="button" id="joinGroupForm" /><br>
+                    </form>
+    
+    
+    
+                </div>
+    
+    
+                <br>
+                <br>
+                <br>
+    
+                <br>
+                <br>
+                <h3>Your Groups</h3>
+                {% if user_groups %}
+    
+                <ul>
+                    {% for group_member in user_groups %}
+                    <li>{{ group_member.group.group_name }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+    
+            </div>
+        </div>
+    
+    
+    
+        <script>
+            $(document).ready(function () {
+                // Function to handle logout when the button is clicked
+                $("#logoutButton").click(function () {
+                    // Make an AJAX request to the Flask logout route
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ url_for('auth.logout') }}",
+                        success: function () {
+                            // Redirect to the login page after successful logout
+                            window.location.href = "{{ url_for('auth.login') }}";
+                        },
+                        error: function (error) {
+                            // Display an error message if the request fails
+                            alert("Error: " + error.statusText);
+                        }
+                    });
+                });
+            });
+        </script>
+    
+    
+    
+        <script>
+    
+    
+            $(document).ready(function () {
+                // Function to handle form submission
+                $("#createGroupForm").submit(function (event) {
+                    // Prevent the default form submission
+                    event.preventDefault();
+    
+                    // Serialize form data
+                    var formData = $(this).serialize();
+    
+                    // Make an AJAX request to the Flask route
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ url_for('auth.create_group') }}",
+                        data: formData,
+                        success: function (response) {
+                            // Check if the response contains a redirect URL
+                            if (response && response.redirect) {
+                                // Redirect the user to the specified URL
+                                window.location.href = response.redirect;
+                            } else {
+                                // Display the response from the Flask route
+                                alert(response);
+                            }
+                        },
+                        error: function (error) {
+                            // Display an error message if the request fails
+                            alert("Error: " + error.statusText);
+                        }
+                    });
+                });
+            });
+    
+    
+            function toggleText() {
+                var textElement = document.getElementById('hide');
+    
+                // Toggle the visibility of the text
+                if (textElement.style.display === 'none') {
+                    textElement.style.display = 'block';
+                } else {
+                    textElement.style.display = 'none';
+                }
+            }
+    
+            function toggleText1() {
+                var textElement = document.getElementById('hide1');
+    
+                // Toggle the visibility of the text
+                if (textElement.style.display === 'none') {
+                    textElement.style.display = 'block';
+                } else {
+                    textElement.style.display = 'none';
+                }
+            }
+    
+    
+            function toggleSlide() {
+                document.body.classList.toggle('map-open');
+    
+            }
+        </script>
+
+
+<div id="map"></div>
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img id="modal-image" src="" alt="Uploaded Image">
+        <div class="minimize" onclick="minimizeImage()">Minimize</div>
+    </div>
+</div>
+
+<script>
+var markers = [];
+var selectedMarker = null;
+var activeMarkers = {}; // Dictionary to store active markers for each user
+
+function initMap() {
+    var location = { lat: 39.7100, lng: -75.1192 };
+    var map = new google.maps.Map(document.getElementById("map"), {
+        center: location,
+        zoom: 14,
+    });
+
+    {% for marker in markers %}
+            var marker = new google.maps.Marker({
+                position: { lat: {{ marker.latitude }}, lng: {{ marker.longitude }} },
+                map: map,
+                title: 'Marker'
+                // You can customize this based on your marker model fields
+            });
+        {% endfor %}
+
+
+
+
+
+
+    google.maps.event.addListener(map, 'click', function (event) {
+        var existingMarker = findMarkerAtLocation(event.latLng);
+
+        if (existingMarker) {
+            selectedMarker = existingMarker;
+            showModal(existingMarker.imageURL);
+        } else {
+            createMarker(event.latLng, map);
+        }
+    });
+}
+
+function createMarker(location, map) {
+    var existingMarker = findMarkerAtLocation(location);
+    var userId = getUserId(); // Replace this with your logic to get the user ID
+
+    // Clear the existing upload button and associated content
+    clearUploadButton();
+
+    // Remove the existing active marker for this user
+    if (activeMarkers[userId]) {
+        activeMarkers[userId].setMap(null);
+        activeMarkers[userId] = null;
+    }
+
+    if (existingMarker) {
+        selectedMarker = existingMarker;
+        showModal(existingMarker.imageURL);
+        return; // No need to create a new marker if one already exists at this location
+    }
+
+    var marker = new google.maps.Marker({
+        position: location,
+        map: map,
+        title: 'Click to upload image',
+        imageURL: null
+    });
+
+    markers.push(marker);
+    activeMarkers[userId] = marker; // Set the new marker as the active marker for this user
+
+    var uploadButton = document.createElement('button');
+    uploadButton.textContent = 'Upload Image';
+    uploadButton.classList.add('upload-button');
+
+    uploadButton.addEventListener('click', function () {
+        var fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.multiple = false;
+
+        fileInput.addEventListener('change', function () {
+            var file = fileInput.files[0];
+
+            if (file) {
+                uploadFile(file, marker, location);
+            }
+        });
+
+        fileInput.click();
+    });
+
+    marker.addListener('click', function () {
+        selectedMarker = marker;
+        showModal(marker.imageURL);
+    });
+
+    marker.setPosition(location);
+    map.panTo(location);
+
+    uploadButton.style.left = marker.getPosition().lng();
+    uploadButton.style.top = marker.getPosition().lat();
+
+    map.controls[google.maps.ControlPosition.TOP_CENTER].push(uploadButton);
+}
+
+
+function getUserId() {
+    // You may use cookies, local storage, or server-side authentication to get the user ID
+    // For simplicity, this example returns a constant value
+    return 'user123';
+}
+
+
+
+function clearUploadButton() {
+    // Remove all existing upload buttons and associated content
+    var existingUploadButtons = document.querySelectorAll('.upload-button');
+    existingUploadButtons.forEach(function (button) {
+        button.remove();
+    });
+}
+
+
+function clearUploadButton() {
+    // Remove the existing upload button and associated content
+    var existingUploadButton = document.querySelector('.upload-button');
+    if (existingUploadButton) {
+        existingUploadButton.remove();
+    }
+}
+
+
+
+function uploadFile(file, marker, markerPosition) {
+    var reader = new FileReader();
+    reader.onload = function (event) {
+        var image = new Image();
+        image.src = event.target.result;
+
+        image.onload = function () {
+            // Create a div to hold both the pin and the uploaded image
+            var div = document.createElement('div');
+            div.style.position = 'relative';
+            div.style.width = '50px'; // Set to the desired width
+            div.style.height = '50px'; // Set to the desired height
+
+            // Create the pin image
+            var pinImage = new Image();
+            pinImage.src = 'path/to/pin_image.png';
+            pinImage.style.width = '100%';
+            pinImage.style.height = '100%';
+            div.appendChild(pinImage);
+
+            // Create the uploaded image
+            var uploadedImage = new Image();
+            uploadedImage.src = event.target.result;
+            uploadedImage.style.position = 'absolute';
+            uploadedImage.style.width = '50%'; // Set to the desired width
+            uploadedImage.style.height = '50%'; // Set to the desired height
+            uploadedImage.style.top = '0';
+            uploadedImage.style.left = '0';
+            div.appendChild(uploadedImage);
+
+
+            // Convert the div to an icon
+            var customIcon = {
+                url: 'data:image/svg+xml,' + encodeURIComponent(div.outerHTML),
+                scaledSize: new google.maps.Size(50, 50), // Set to the desired size
+            };
+
+            marker.setIcon(customIcon);
+            marker.imageURL = image.src;
+
+            // Store the original marker icon
+            marker.originalIcon = customIcon;
+
+            console.log('Image URL:', marker.imageURL);
+
+            saveImageDataToDatabase(event.target.result, markerPosition);
+        };
+    };
+    reader.readAsDataURL(file);
+}
+function saveImageDataToDatabase(imageData, markerPosition) {
+    // You can use AJAX or fetch to send the image data to your server
+    // In this example, I'll use the Fetch API
+    fetch('/save_marker_and_image', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            imageData: imageData,
+            markerPosition: markerPosition
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Marker and Image data saved:', data);
+    })
+    .catch(error => {
+        console.error('Error saving image data:', error);
+    });
+}
+
+    function findMarkerAtLocation(location) {
+        for (var i = 0; i < markers.length; i++) {
+            if (markers[i].getPosition().equals(location)) {
+                return markers[i];
+            }
+        }
+        return null;
+    }
+
+    function showModal(imageURL) {
+
+        console.log('Received Image URL:', imageURL);
+
+
+    var modal = document.getElementById('myModal');
+    var modalImage = document.getElementById('modal-image');
+    var minimizeButton = document.querySelector('.minimize');
+
+    if (selectedMarker) {
+        minimizedMarkerLocation = selectedMarker.getPosition();
+    }
+
+    modalImage.src = imageURL;
+    modal.style.display = 'block';
+
+    if (imageURL) {
+        minimizeButton.style.display = 'block';
+    } else {
+        minimizeButton.style.display = 'none';
+    }
+}
+
+function closeModal() {
+    var modal = document.getElementById('myModal');
+    var minimizeButton = document.querySelector('.minimize');
+
+    modal.style.display = 'none';
+    minimizeButton.style.display = 'none';
+}
+
+function minimizeImage() {
+    var modal = document.getElementById('myModal');
+    var minimizeButton = document.querySelector('.minimize');
+
+    if (selectedMarker) {
+        // Hide the modal
+        modal.style.display = 'none';
+
+        // Show the marker icon
+        selectedMarker.setIcon(selectedMarker.originalIcon);
+        selectedMarker.setMap(selectedMarker.getMap()); // Show the marker
+
+        minimizeButton.style.display = 'block'; // Show minimize button again
+    }
+}
+
+</script>
+</body>
+</html>
