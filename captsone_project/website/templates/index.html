@@ -3,112 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MapView</title>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <style>
         body {
-     margin: 0;
-       padding: 0;
-       transition: margin-left 0.5s;
-       background-color: lightblue;
+            margin: 0;
+            padding: 0;
+            transition: margin-left 0.5s;
+            background-color: lightblue;
+        }
 
-     }
- 
-     #map {
-             height: 1080px;
-             width: auto;
-             transition: margin-left 0.5s;
-             z-index: 2;
- 
-         }
- 
-         .map-open {
-       margin-left: 400px;
-     }
- 
- .additional-content {
-       padding: 20px;
-       position: absolute;
-       top: 20px;
-       left: 20px;
-       z-index: 1;
-     }
- 
-     button {
-       padding: 10px;
-       cursor: pointer;
-       z-index: 3;
-     }
+        #map {
+            height: 1080px;
+            width: auto;
+            transition: margin-left 0.5s;
+            z-index: 2;
+        }
 
- 
-         .modal {
-             display: none;
-             position: fixed;
-             top: 0;
-             left: 0;
-             width: 100%;
-             height: 100%;
-             background-color: rgba(0, 0, 0, 0.7);
-             z-index: 3;
-         }
- 
-         .modal-content {
-             position: absolute;
-             top: 50%;
-             left: 50%;
-             transform: translate(-50%, -50%);
-             background-color: white;
-             padding: 20px;
-             max-width: 400px;
-             text-align: center;
-             z-index: 4;
-         }
- 
-         #modal-image {
-             max-width: 100%;
-             max-height: 400px;
-         }
- 
-         .minimize {
-             margin-top: 10px;
-             cursor: pointer;
-             color: blue;
-             text-decoration: underline;
-         }
- 
-         .close {
-             position: absolute;
-             top: 0;
-             right: 0;
-             padding: 10px;
-             cursor: pointer;
-         }
- 
-         .logout {
-             padding-top: 90%;
-         }
- 
+        .map-open {
+            margin-left: 400px;
+        }
 
-     #hide{
-         display: none;
-     }
- 
-     #hide1{
-         display: none;
-     }
+        .additional-content {
+            padding: 20px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1;
+        }
 
-         #imageInput,
-         #descriptionInput,
-         #uploadButton {
-             margin: 10px;
-         }
+        button {
+            padding: 10px;
+            cursor: pointer;
+            z-index: 3;
+        }
 
-     </style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 3;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            max-width: 400px;
+            text-align: center;
+            z-index: 4;
+        }
+
+        #modal-image {
+            max-width: 100%;
+            max-height: 400px;
+        }
+
+        .minimize {
+            margin-top: 10px;
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+
+        .close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .logout {
+            padding-top: 90%;
+        }
+
+        #hide {
+            display: none;
+        }
+
+        #hide1 {
+            display: none;
+        }
+
+        #imageInput,
+        #descriptionInput,
+        #uploadButton {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
     <script src=" https://maps.googleapis.com/maps/api/js?key=AIzaSyCrTZ5ngLS7UbsbQXIDH6Kx3TtGMXl-SCw&callback=initMap
     " async defer></script>
 </head>
 <body>
-        <button onclick="clearLocalStorage()">Clear Local Storage</button>
+    <button onclick="clearDatabase()">Clear Database</button>
         <button onclick="toggleSlide()">Menu</button>
         <div class="container">
             <div class="main-content" id="map">
@@ -282,6 +280,294 @@ function initMap() {
     var map = new google.maps.Map(document.getElementById("map"), {
         center: location,
         zoom: 14,
+        styles: [    {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "hue": "#165c64"
+            },
+            {
+                "saturation": 34
+            },
+            {
+                "lightness": -69
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "landscape",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "hue": "#b7caaa"
+            },
+            {
+                "saturation": -14
+            },
+            {
+                "lightness": -18
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "landscape.man_made",
+        "elementType": "all",
+        "stylers": [
+            {
+                "hue": "#cbdac1"
+            },
+            {
+                "saturation": -6
+            },
+            {
+                "lightness": -9
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "hue": "#8d9b83"
+            },
+            {
+                "saturation": -89
+            },
+            {
+                "lightness": -12
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "hue": "#d4dad0"
+            },
+            {
+                "saturation": -88
+            },
+            {
+                "lightness": 54
+            },
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "hue": "#bdc5b6"
+            },
+            {
+                "saturation": -89
+            },
+            {
+                "lightness": -3
+            },
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "road.local",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "hue": "#bdc5b6"
+            },
+            {
+                "saturation": -89
+            },
+            {
+                "lightness": -26
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "hue": "#c17118"
+            },
+            {
+                "saturation": 61
+            },
+            {
+                "lightness": -45
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.park",
+        "elementType": "all",
+        "stylers": [
+            {
+                "hue": "#8ba975"
+            },
+            {
+                "saturation": -46
+            },
+            {
+                "lightness": -28
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "hue": "#a43218"
+            },
+            {
+                "saturation": 74
+            },
+            {
+                "lightness": -51
+            },
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.province",
+        "elementType": "all",
+        "stylers": [
+            {
+                "hue": "#ffffff"
+            },
+            {
+                "saturation": 0
+            },
+            {
+                "lightness": 100
+            },
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.neighborhood",
+        "elementType": "all",
+        "stylers": [
+            {
+                "hue": "#ffffff"
+            },
+            {
+                "saturation": 0
+            },
+            {
+                "lightness": 100
+            },
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.locality",
+        "elementType": "labels",
+        "stylers": [
+            {
+                "hue": "#ffffff"
+            },
+            {
+                "saturation": 0
+            },
+            {
+                "lightness": 100
+            },
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.land_parcel",
+        "elementType": "all",
+        "stylers": [
+            {
+                "hue": "#ffffff"
+            },
+            {
+                "saturation": 0
+            },
+            {
+                "lightness": 100
+            },
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative",
+        "elementType": "all",
+        "stylers": [
+            {
+                "hue": "#3a3935"
+            },
+            {
+                "saturation": 5
+            },
+            {
+                "lightness": -57
+            },
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.medical",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "hue": "#cba923"
+            },
+            {
+                "saturation": 50
+            },
+            {
+                "lightness": -46
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    }]
     });
 
     {% for marker in markers %}
@@ -377,7 +663,7 @@ function createMarker(location, map) {
 function getUserId() {
     // You may use cookies, local storage, or server-side authentication to get the user ID
     // For simplicity, this example returns a constant value
-    return 'user123';
+    return 'user123'; //sample
 }
 
 
@@ -452,8 +738,6 @@ function uploadFile(file, marker, markerPosition) {
     reader.readAsDataURL(file);
 }
 function saveImageDataToDatabase(imageData, markerPosition) {
-    // You can use AJAX or fetch to send the image data to your server
-    // In this example, I'll use the Fetch API
     fetch('/save_marker_and_image', {
         method: 'POST',
         headers: {
@@ -528,6 +812,23 @@ function minimizeImage() {
         minimizeButton.style.display = 'block'; // Show minimize button again
     }
 }
+
+
+function clearDatabase() {
+    // Make an AJAX request to the Flask route for clearing the database
+    $.ajax({
+        type: "POST",
+        url: "{{ url_for('views.clear_database') }}",
+        success: function (response) {
+            // Refresh the page after clearing the database
+            window.location.reload();
+        },
+        error: function (error) {
+            alert("Error clearing database: " + error.statusText);
+        }
+    });
+}
+
 
 </script>
 </body>
